@@ -8,7 +8,7 @@ Tested with both Ansible 2.9 and the current development version of Ansible.
 
 ## External requirements
 
-No requirements.
+The [`lxml` Python module](https://pypi.org/project/lxml/) is needed.
 
 ## Included content
 
