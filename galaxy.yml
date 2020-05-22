@@ -4,8 +4,7 @@ version: 1.0.0
 readme: README.md
 authors:
   - Felix Fontein (https://github.com/felixfontein)
-description: null
-license: GPL-3.0-or-later
+description: Modules to create, delete and modify DNS entries with the Hosttech DNS API
 license_file: COPYING
 tags:
   - hosttech
@@ -16,5 +15,9 @@ documentation: https://github.com/felixfontein/ansible-hosttech_dns/tree/master/
 homepage: https://github.com/felixfontein/ansible-hosttech_dns
 issues: https://github.com/felixfontein/ansible-hosttech_dns/issues
 build_ignore:
-  - 'felixfontein-hosttech_dns-*.tar.gz'
   - .gitignore
+  - felixfontein-hosttech_dns-*.tar.gz
+  - changelogs/.plugin-cache.yaml
+  - playground
+  - tests/output
+  - tests/integration/integration_config.yml

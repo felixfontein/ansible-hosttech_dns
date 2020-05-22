@@ -14,6 +14,8 @@ module: hosttech_dns_record
 
 short_description: Add or delete entries in Hosttech DNS service
 
+version_added: 1.0.0
+
 description:
     - "Creates and deletes DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."
 

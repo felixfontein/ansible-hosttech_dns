@@ -14,6 +14,8 @@ module: hosttech_dns_record_info
 
 short_description: Retrieve entries in Hosttech DNS service
 
+version_added: 1.0.0
+
 description:
     - "Retrieves DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."
 
