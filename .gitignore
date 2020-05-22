@@ -1,0 +1,6 @@
+/credentials.yml
+/playground/
+/tests/output
+/tests/integration/integration_config.yml
+/felixfontein-hosttech_dns-*.tar.gz
+__pycache__

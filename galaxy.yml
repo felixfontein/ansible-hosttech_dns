@@ -1,0 +1,20 @@
+namespace: felixfontein
+name: hosttech_dns
+version: 1.0.0
+readme: README.md
+authors:
+  - Felix Fontein (https://github.com/felixfontein)
+description: null
+license: GPL-3.0-or-later
+license_file: COPYING
+tags:
+  - hosttech
+  - dns
+dependencies: {}
+repository: https://github.com/felixfontein/ansible-hosttech_dns
+documentation: https://github.com/felixfontein/ansible-hosttech_dns/tree/master/docs/index.html
+homepage: https://github.com/felixfontein/ansible-hosttech_dns
+issues: https://github.com/felixfontein/ansible-hosttech_dns/issues
+build_ignore:
+  - 'felixfontein-hosttech_dns-*.tar.gz'
+  - .gitignore
