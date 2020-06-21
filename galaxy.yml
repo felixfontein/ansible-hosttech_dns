@@ -11,7 +11,7 @@ tags:
   - dns
 dependencies: {}
 repository: https://github.com/felixfontein/ansible-hosttech_dns
-documentation: https://github.com/felixfontein/ansible-hosttech_dns/tree/master/README.md#included-content
+documentation: https://github.com/felixfontein/ansible-hosttech_dns/tree/main/README.md#included-content
 homepage: https://github.com/felixfontein/ansible-hosttech_dns
 issues: https://github.com/felixfontein/ansible-hosttech_dns/issues
 build_ignore:
