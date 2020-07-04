@@ -5,6 +5,19 @@ Hosttech DNS Modules Release Notes
 .. contents:: Topics
 
 
+v1.1.0
+======
+
+Minor Changes
+-------------
+
+- hosttech_dns - add diff mode.
+
+Bugfixes
+--------
+
+- hosttech_dns - fix error when creating records for new domain.
+
 v1.0.2
 ======
 

@@ -29,3 +29,13 @@ releases:
     fragments:
     - 1.0.2.yml
     release_date: '2020-07-04'
+  1.1.0:
+    changes:
+      bugfixes:
+      - hosttech_dns - fix error when creating records for new domain.
+      minor_changes:
+      - hosttech_dns - add diff mode.
+    fragments:
+    - diff-mode.yml
+    - fix-new-records.yml
+    release_date: '2020-07-04'
