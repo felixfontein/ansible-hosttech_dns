@@ -46,7 +46,7 @@ class DNSRecord(object):
         result.type = source.get('type', type)
         result.prefix = source.get('prefix')
         result.target = source.get('target')
-        result.ttl = int(source['ttl'])
+        result.ttl = int(source['ttl']) if source['ttl'] is not None else None
         result.priority = source.get('priority')
         return result
 

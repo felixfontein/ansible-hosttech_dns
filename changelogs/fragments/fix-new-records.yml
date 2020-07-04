@@ -1,0 +1,2 @@
+bugfixes:
+- "hosttech_dns - fix error when creating records for new domain."
