@@ -237,7 +237,7 @@ from ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl imp
 )
 
 from ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.hosttech_dns import (
-    HostTechAPIError, HostTechAPIAuthError, HostTechAPI, DNSRecord,
+    HostTechAPIError, HostTechAPIAuthError, HostTechAPI, DNSRecord, format_records_for_output,
 )
 
 
@@ -323,6 +323,9 @@ def run_module():
     if values:
         mismatch = True
 
+    before = [record.clone() for record in records]
+    after = []
+
     # Determine what to do
     to_create = []
     to_delete = []
@@ -348,6 +351,7 @@ def run_module():
             record.ttl = ttl_in
             record.priority = priority
             record.target = target
+            after.append(record)
     if module.params.get('state') == 'absent':
         if not mismatch:
             to_delete.extend(records)
@@ -373,7 +377,15 @@ def run_module():
             module.fail_json(msg='Network error: {0}'.format(e), error=str(e))
         except WSDLException as e:
             module.fail_json(msg='Internal error (WSDL level): {0}'.format(e), error=str(e))
-    module.exit_json(changed=True)
+
+    result = dict(changed=True)
+    if module._diff:
+        result['diff'] = dict(
+            before=format_records_for_output(sorted(before, key=lambda record: record.target), record_in) if before else dict(),
+            after=format_records_for_output(sorted(after, key=lambda record: record.target), record_in) if after else dict(),
+        )
+
+    module.exit_json(**result)
 
 
 def main():

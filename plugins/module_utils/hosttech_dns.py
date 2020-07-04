@@ -63,6 +63,9 @@ class DNSRecord(object):
             result['zone'] = self.zone
         return result
 
+    def clone(self):
+        return DNSRecord.create_from_encoding(self.encode(include_ids=True))
+
     def __str__(self):
         data = []
         if self.id:
@@ -263,3 +266,16 @@ class HostTechAPI(object):
         except WSDLError as e:
             # FIXME
             raise
+
+
+def format_records_for_output(records, record_name):
+    ttls = set([record.ttl for record in records]),
+    entry = {
+        'record': record_name,
+        'type': min([record.type for record in records]) if records else None,
+        'ttl': min(*list(ttls)) if records else None,
+        'value': [record.target for record in records],
+    }
+    if len(ttls) > 1:
+        entry['ttls'] = ttls
+    return entry

@@ -134,7 +134,7 @@ from ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl imp
 )
 
 from ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.hosttech_dns import (
-    HostTechAPIError, HostTechAPIAuthError, HostTechAPI,
+    HostTechAPIError, HostTechAPIAuthError, HostTechAPI, format_records_for_output,
 )
 
 
@@ -151,19 +151,6 @@ def get_prefix(module, zone_in):
         return None, record_in
     else:
         return record_in[:len(record_in) - len(zone_in) - 1], record_in
-
-
-def format_for_output(records, record_name):
-    ttls = set([record.ttl for record in records]),
-    entry = {
-        'record': record_name,
-        'type': min([record.type for record in records]),
-        'ttl': min(*list(ttls)),
-        'value': [record.target for record in records],
-    }
-    if len(ttls) > 1:
-        entry['ttls'] = ttls
-    return entry
 
 
 def run_module():
@@ -216,7 +203,7 @@ def run_module():
                 records.append(record)
 
         # Format output
-        data = format_for_output(records, record_in) if records else {}
+        data = format_records_for_output(records, record_in) if records else {}
         module.exit_json(
             changed=False,
             set=data,
@@ -241,7 +228,7 @@ def run_module():
             record_list.append(record)
 
         # Format output
-        data = [format_for_output(record_list, record_name) for (record_name, dummy), record_list in sorted(records.items())]
+        data = [format_records_for_output(record_list, record_name) for (record_name, dummy), record_list in sorted(records.items())]
         module.exit_json(
             changed=False,
             sets=data,
