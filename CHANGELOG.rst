@@ -1,8 +1,17 @@
-===================================
-Hosttech DNS Modules  Release Notes
-===================================
+==================================
+Hosttech DNS Modules Release Notes
+==================================
 
 .. contents:: Topics
+
+
+v1.0.2
+======
+
+Release Summary
+---------------
+
+Maintenance release for internal changes. Visible external change is that the changelog moved one directory up.
 
 
 v1.0.1
