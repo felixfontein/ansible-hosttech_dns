@@ -4,6 +4,8 @@
 
 This repository provides an [Ansible](https://github.com/ansible/ansible) collection with modules to create, modify and delete DNS records for zones hosted at the Swiss provider [Hosttech](https://www.hosttech.ch/) using their [API](https://ns1.hosttech.eu/public/api?wsdl).
 
+You can find [documentation for this collection on my Ansible docsite](https://ansible.fontein.de/collections/felixfontein/hosttech_dns/).
+
 ## Tested with Ansible
 
 Tested with both Ansible 2.9 and the current development version of Ansible.
@@ -16,6 +18,8 @@ The [`lxml` Python module](https://pypi.org/project/lxml/) is needed.
 
 - ``hosttech_dns_record`` module
 - ``hosttech_dns_record_info`` module
+
+You can find [documentation for this collection on my Ansible docsite](https://ansible.fontein.de/collections/felixfontein/hosttech_dns/).
 
 ## Using this collection
 
