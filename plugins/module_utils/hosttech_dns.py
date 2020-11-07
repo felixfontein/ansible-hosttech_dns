@@ -159,12 +159,15 @@ class HostTechAPI(object):
         Create a new HostTech API instance with given username and password.
         """
         self._api = api
+        self._namespaces = {
+            'ns1': 'https://ns1.hosttech.eu/soap',
+        }
         self._username = username
         self._password = password
         self._debug = debug
 
     def _prepare(self):
-        command = Composer(self._api)
+        command = Composer(self._api, self._namespaces)
         command.add_auth(self._username, self._password)
         return command
 

@@ -1,4 +1,6 @@
 # Hosttech DNS Modules
+[![CI](https://github.com/felixfontein/ansible-hosttech_dns/workflows/CI/badge.svg?event=push)](https://github.com/felixfontein/ansible-hosttech_dns/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/felixfontein/ansible-hosttech_dns)](https://codecov.io/gh/felixfontein/ansible-hosttech_dns)
 
 This repository provides an [Ansible](https://github.com/ansible/ansible) collection with modules to create, modify and delete DNS records for zones hosted at the Swiss provider [Hosttech](https://www.hosttech.ch/) using their [API](https://ns1.hosttech.eu/public/api?wsdl).
 

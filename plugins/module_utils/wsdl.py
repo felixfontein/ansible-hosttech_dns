@@ -74,7 +74,7 @@ def encode_wsdl(node, value):
         node.text = ('true' if value else 'false')
     elif isinstance(value, dict):
         _set_type(node, 'Map', _NAMESPACE_XML_SOAP)
-        for key, val in value.items():
+        for key, val in sorted(value.items()):
             child = lxml.etree.Element('item')
             ke = lxml.etree.Element('key')
             encode_wsdl(ke, key)
@@ -242,18 +242,20 @@ class Composer(object):
     def _create_envelope(self, tag, **kwarg):
         return self._create(tag, self._main_ns, **kwarg)
 
-    def __init__(self, api):
+    def __init__(self, api, namespaces=None):
         self._main_ns = _NAMESPACE_ENVELOPE
         self._api = api
         # Compose basic document
-        self._root = self._create_envelope('Envelope', nsmap={
+        all_namespaces = {
             'SOAP-ENV': _NAMESPACE_ENVELOPE,
-            'ns1': 'https://ns1.hosttech.eu/soap',
             'xsd': _NAMESPACE_XSD,
             'xsi': _NAMESPACE_XSI,
             'ns2': 'auth',
             'SOAP-ENC': _NAMESPACE_XML_SOAP_ENCODING,
-        })
+        }
+        if namespaces is not None:
+            all_namespaces.update(namespaces)
+        self._root = self._create_envelope('Envelope', nsmap=all_namespaces)
         self._root.set(lxml.etree.QName(self._main_ns, 'encodingStyle').text, _NAMESPACE_XML_SOAP_ENCODING)
         self._header = self._create_envelope('Header')
         self._root.append(self._header)
