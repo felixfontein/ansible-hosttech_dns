@@ -19,6 +19,9 @@ version_added: 1.0.0
 description:
     - "Creates and deletes DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."
 
+notes:
+    - "Supports C(check_mode) and C(--diff)."
+
 options:
     state:
         description:
@@ -39,7 +42,6 @@ options:
     ttl:
         description:
         - The TTL to give the new record, in seconds.
-        required: false
         default: 3600
         type: int
     type:
@@ -61,7 +63,6 @@ options:
         description:
         - Whether an existing record should be overwritten on create if values do not
           match.
-        required: false
         default: false
         type: bool
 
@@ -224,11 +225,9 @@ EXAMPLES = '''
     - "10 100 3333 service.foo.com"
     hosttech_username: foo
     hosttech_password: bar
-
 '''
 
-RETURN = '''
-'''
+RETURN = ''' # '''
 
 from ansible.module_utils.basic import AnsibleModule
 

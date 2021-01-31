@@ -19,6 +19,9 @@ version_added: 1.0.0
 description:
     - "Retrieves DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."
 
+notes:
+    - "Supports C(check_mode)."
+
 options:
     what:
         description:
@@ -72,7 +75,6 @@ EXAMPLES = '''
     value: "{{ rec.set.value }}"
     hosttech_username: foo
     hosttech_password: bar
-
 '''
 
 RETURN = '''
@@ -100,6 +102,13 @@ set:
             sample:
             - 1.2.3.4
             - 1.2.3.5
+    sample:
+        record: sample.example.com
+        type: A
+        ttl: 3600
+        value:
+        - 1.2.3.4
+        - 1.2.3.5
 sets:
     description: The list of fetched records.
     type: list
@@ -125,6 +134,13 @@ sets:
             sample:
             - 1.2.3.4
             - 1.2.3.5
+    sample:
+        - record: sample.example.com
+          type: A
+          ttl: 3600
+          value:
+          - 1.2.3.4
+          - 1.2.3.5
 '''
 
 from ansible.module_utils.basic import AnsibleModule
