@@ -9,6 +9,7 @@ You can find [documentation for this collection on my Ansible docsite](https://a
 ## Tested with Ansible
 
 This collection is tested with Ansible 2.9, ansible-base 2.10 and ansible-core's `devel` branch.
+This collection requires Ansible 2.9.10 or newer.
 
 ## External requirements
 
@@ -36,6 +37,12 @@ The CI (based on GitHub Actions) runs sanity and unit tests, but not integration
 ## Releasing, Deprecation and Versioning
 
 We release new versions once there are new features or bugfixes. Deprecations can happen, and we try to announce them a long time in advance. We currently do not plan breaking changes, so there will be no new major release anytime soon.
+
+## Contributing
+
+Please create issues to report problems or request new features, and create PRs to fix bugs or add new features. If you want to do a refactoring PR, please create an issue first to discuss the refactoring.
+
+Please follow the general Ansible contributor guidelines; see the [Ansible Community Guide](https://docs.ansible.com/ansible/latest/community/index.html).
 
 ## More information
 
