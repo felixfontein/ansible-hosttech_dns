@@ -8,7 +8,8 @@ You can find [documentation for this collection on my Ansible docsite](https://a
 
 ## Tested with Ansible
 
-Tested with both Ansible 2.9 and the current development version of Ansible.
+This collection is tested with Ansible 2.9, ansible-base 2.10 and ansible-core's `devel` branch.
+This collection requires Ansible 2.9.10 or newer.
 
 ## External requirements
 
@@ -28,6 +29,20 @@ See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_gui
 ## Release notes
 
 See [here](https://github.com/felixfontein/ansible-hosttech_dns/tree/main/CHANGELOG.rst).
+
+## Running integration tests
+
+The CI (based on GitHub Actions) runs sanity and unit tests, but not integration tests. The integration tests need access to HostTech API credentials. If you have some, copy [`tests/integration/integration_config.yml.template`](https://github.com/felixfontein/ansible-hosttech_dns/blob/main/tests/integration/integration_config.yml.template) to `integration_config.yml` in the same directory, and insert username, key, a test zone (`domain.ch`) and test record (`foo.domain.ch`). Then run `ansible-test integration`. Please note that the test record will be deleted, (re-)created, and finally deleted, so do not use any record you actually need!
+
+## Releasing, Deprecation and Versioning
+
+We release new versions once there are new features or bugfixes. Deprecations can happen, and we try to announce them a long time in advance. We currently do not plan breaking changes, so there will be no new major release anytime soon.
+
+## Contributing
+
+Please create issues to report problems or request new features, and create PRs to fix bugs or add new features. If you want to do a refactoring PR, please create an issue first to discuss the refactoring.
+
+Please follow the general Ansible contributor guidelines; see the [Ansible Community Guide](https://docs.ansible.com/ansible/latest/community/index.html).
 
 ## More information
 
