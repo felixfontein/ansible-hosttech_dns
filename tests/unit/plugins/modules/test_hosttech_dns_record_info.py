@@ -176,7 +176,7 @@ class TestHosttechDNSRecordInfo(ModuleTestCase):
                     'hosttech_username': 'foo',
                     'hosttech_password': 'bar',
                     'zone': 'example.com',
-                    'record': '*.example.com',
+                    'record': 'example.com',
                     'type': 'A',
                     '_ansible_remote_tmp': '/tmp/tmp',
                     '_ansible_keep_remote_files': True,
@@ -186,13 +186,13 @@ class TestHosttechDNSRecordInfo(ModuleTestCase):
         print(e.value.args[0])
         assert e.value.args[0]['changed'] is False
         assert 'set' in e.value.args[0]
-        assert e.value.args[0]['set']['record'] == '*.example.com'
+        assert e.value.args[0]['set']['record'] == 'example.com'
         assert e.value.args[0]['set']['ttl'] == 3600
         assert e.value.args[0]['set']['type'] == 'A'
-        assert e.value.args[0]['set']['value'] == ['1.2.3.5']
+        assert e.value.args[0]['set']['value'] == ['1.2.3.4']
         assert 'sets' not in e.value.args[0]
 
-    def test_get_all_of_type(self):
+    def test_get_all_for_one_record(self):
         open_url = OpenUrlProxy([
             OpenUrlCall('POST', 200)
             .expect_content_predicate(validate_wsdl_call([
@@ -256,7 +256,7 @@ class TestHosttechDNSRecordInfo(ModuleTestCase):
                     'hosttech_username': 'foo',
                     'hosttech_password': 'bar',
                     'what': 'all_records',
-                    'zone': 'example.com',
+                    'zone': 'example.com.',
                     '_ansible_remote_tmp': '/tmp/tmp',
                     '_ansible_keep_remote_files': True,
                 })
