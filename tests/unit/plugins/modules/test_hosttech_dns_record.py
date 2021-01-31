@@ -4,11 +4,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import base64
-
 import pytest
-
-lxmletree = pytest.importorskip("lxml.etree")
 
 from ansible_collections.community.internal_test_tools.tests.unit.compat.mock import patch
 
@@ -30,130 +26,69 @@ from ansible_collections.felixfontein.hosttech_dns.plugins.modules import hostte
 import ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl
 
 from .helper import (
-    validate_wsdl_call,
+    add_dns_record_lines,
+    check_nil,
+    check_value,
+    create_zones_answer,
     expect_authentication,
     expect_value,
+    find_map_entry,
+    get_value,
+    validate_wsdl_call,
+    DEFAULT_ENTRIES,
+    DEFAULT_ZONE_RESULT,
 )
 
+lxmletree = pytest.importorskip("lxml.etree")
 
-GET_ALL_ZONES_ANSWER = ''.join([
-    '<?xml version="1.0" encoding="UTF-8"?>\n',
-    '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
-    ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
-    ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
-    ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-    ' xmlns:ns2="http://xml.apache.org/xml-soap"'
-    ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
-    ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">',
-    '<SOAP-ENV:Header>',
-    '<ns1:authenticateResponse>',
-    '<return xsi:type="xsd:boolean">true</return>',
-    '</ns1:authenticateResponse>',
-    '</SOAP-ENV:Header>',
-    '<SOAP-ENV:Body>',
-    '<ns1:getZoneResponse>',
-    '<return xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">user</key><value xsi:type="xsd:int">23</value></item>',
-    '<item><key xsi:type="xsd:string">name</key><value xsi:type="xsd:string">example.com</value></item>',
-    '<item><key xsi:type="xsd:string">email</key><value xsi:type="xsd:string">dns@hosttech.eu</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">10800</value></item>',
-    '<item><key xsi:type="xsd:string">nameserver</key><value xsi:type="xsd:string">ns1.hostserv.eu</value></item>',
-    '<item><key xsi:type="xsd:string">serial</key><value xsi:type="xsd:string">12345</value></item>',
-    '<item><key xsi:type="xsd:string">serialLastUpdate</key><value xsi:type="xsd:int">0</value></item>',
-    '<item><key xsi:type="xsd:string">refresh</key><value xsi:type="xsd:int">7200</value></item>',
-    '<item><key xsi:type="xsd:string">retry</key><value xsi:type="xsd:int">120</value></item>',
-    '<item><key xsi:type="xsd:string">expire</key><value xsi:type="xsd:int">1234567</value></item>',
-    '<item><key xsi:type="xsd:string">template</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">ns3</key><value xsi:type="xsd:int">1</value></item>',
-    '<item><key xsi:type="xsd:string">records</key><value SOAP-ENC:arrayType="ns2:Map[8]" xsi:type="SOAP-ENC:Array">',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">125</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">A</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string"></value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">1.2.3.4</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">3600</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">126</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">A</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string">*</value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">1.2.3.5</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">3600</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">127</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">AAAA</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string"></value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">2001:1:2::3</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">3600</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">128</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">AAAA</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string">*</value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">2001:1:2::4</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">3600</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">129</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">MX</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string"></value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">example.com</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">3600</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:type="xsd:int">10</value></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">130</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">NS</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string"></value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">ns3.hostserv.eu</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">10800</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">131</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">NS</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string"></value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">ns2.hostserv.eu</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">10800</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '<item xsi:type="ns2:Map">',
-    '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">132</value></item>',
-    '<item><key xsi:type="xsd:string">zone</key><value xsi:type="xsd:int">42</value></item>',
-    '<item><key xsi:type="xsd:string">type</key><value xsi:type="xsd:string">NS</value></item>',
-    '<item><key xsi:type="xsd:string">prefix</key><value xsi:type="xsd:string"></value></item>',
-    '<item><key xsi:type="xsd:string">target</key><value xsi:type="xsd:string">ns1.hostserv.eu</value></item>',
-    '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">10800</value></item>',
-    '<item><key xsi:type="xsd:string">comment</key><value xsi:nil="true"/></item>',
-    '<item><key xsi:type="xsd:string">priority</key><value xsi:nil="true"/></item>',
-    '</item>',
-    '</value>',
-    '</item>',
-    '</return>',
-    '</ns1:getZoneResponse>',
-    '</SOAP-ENV:Body>',
-    '</SOAP-ENV:Envelope>'
-])
+
+def validate_add_request(zone, entry):
+    def predicate(content, header, body):
+        fn_data = get_value(body, lxmletree.QName('https://ns1.hosttech.eu/public/api', 'addRecord').text)
+        check_value(get_value(fn_data, 'search'), zone, type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        record_data = get_value(fn_data, 'recorddata')
+        check_value(find_map_entry(record_data, 'type'), entry[2], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        prefix = find_map_entry(record_data, 'prefix')
+        if entry[3]:
+            check_value(prefix, entry[3], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        elif prefix is not None:
+            check_nil(prefix)
+        check_value(find_map_entry(record_data, 'target'), entry[4], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        check_value(find_map_entry(record_data, 'ttl'), str(entry[5]), type=('http://www.w3.org/2001/XMLSchema', 'int'))
+        if entry[6] is None:
+            comment = find_map_entry(record_data, 'comment', allow_non_existing=True)
+            if comment is not None:
+                check_nil(comment)
+        else:
+            check_value(find_map_entry(record_data, 'comment'), entry[6], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        if entry[7] is None:
+            check_nil(find_map_entry(record_data, 'priority'))
+        else:
+            check_value(find_map_entry(record_data, 'priority'), entry[7], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        return True
+
+    return predicate
+
+
+def create_add_result(entry):
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>\n',
+        '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://ns1.hosttech.eu/public/api" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">',
+        '<SOAP-ENV:Header>',
+        '<ns1:authenticateResponse>',
+        '<return xsi:type="xsd:boolean">true</return>',
+        '</ns1:authenticateResponse>',
+        '</SOAP-ENV:Header>',
+        '<SOAP-ENV:Body>',
+        '<ns1:addRecordResponse>',
+    ]
+    add_dns_record_lines(lines, entry, 'return')
+    lines.extend([
+        '</ns1:addRecordResponse>',
+        '</SOAP-ENV:Body>',
+        '</SOAP-ENV:Envelope>',
+    ])
+    return ''.join(lines)
 
 
 class TestHosttechDNSRecord(ModuleTestCase):
@@ -168,7 +103,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                     ('http://www.w3.org/2001/XMLSchema', 'string')
                 ),
             ]))
-            .result_str(GET_ALL_ZONES_ANSWER),
+            .result_str(DEFAULT_ZONE_RESULT),
         ])
         with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
             with pytest.raises(AnsibleExitJson) as e:
@@ -202,7 +137,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                     ('http://www.w3.org/2001/XMLSchema', 'string')
                 ),
             ]))
-            .result_str(GET_ALL_ZONES_ANSWER),
+            .result_str(DEFAULT_ZONE_RESULT),
         ])
         with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
             with pytest.raises(AnsibleExitJson) as e:
@@ -236,7 +171,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                     ('http://www.w3.org/2001/XMLSchema', 'string')
                 ),
             ]))
-            .result_str(GET_ALL_ZONES_ANSWER),
+            .result_str(DEFAULT_ZONE_RESULT),
         ])
         with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
             with pytest.raises(AnsibleExitJson) as e:
@@ -270,7 +205,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                     ('http://www.w3.org/2001/XMLSchema', 'string')
                 ),
             ]))
-            .result_str(GET_ALL_ZONES_ANSWER),
+            .result_str(DEFAULT_ZONE_RESULT),
         ])
         with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
             with pytest.raises(AnsibleExitJson) as e:
@@ -304,7 +239,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                     ('http://www.w3.org/2001/XMLSchema', 'string')
                 ),
             ]))
-            .result_str(GET_ALL_ZONES_ANSWER),
+            .result_str(DEFAULT_ZONE_RESULT),
         ])
         with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
             with pytest.raises(AnsibleExitJson) as e:
@@ -327,7 +262,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
         print(e.value.args[0])
         assert e.value.args[0]['changed'] is False
 
-    def test_change_check_mode(self):
+    def test_change_add_one_check_mode(self):
         open_url = OpenUrlProxy([
             OpenUrlCall('POST', 200)
             .expect_content_predicate(validate_wsdl_call([
@@ -338,7 +273,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                     ('http://www.w3.org/2001/XMLSchema', 'string')
                 ),
             ]))
-            .result_str(GET_ALL_ZONES_ANSWER),
+            .result_str(DEFAULT_ZONE_RESULT),
         ])
         with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
             with pytest.raises(AnsibleExitJson) as e:
@@ -354,6 +289,47 @@ class TestHosttechDNSRecord(ModuleTestCase):
                         'test',
                     ],
                     '_ansible_check_mode': True,
+                    '_ansible_remote_tmp': '/tmp/tmp',
+                    '_ansible_keep_remote_files': True,
+                })
+                hosttech_dns_record.main()
+
+        print(e.value.args[0])
+        assert e.value.args[0]['changed'] is True
+
+    def test_change_add_one(self):
+        new_entry = (131, 42, 'CAA', '', 'test', 3600, None, None)
+        open_url = OpenUrlProxy([
+            OpenUrlCall('POST', 200)
+            .expect_content_predicate(validate_wsdl_call([
+                expect_authentication('foo', 'bar'),
+                expect_value(
+                    [lxmletree.QName('https://ns1.hosttech.eu/public/api', 'getZone').text, 'sZoneName'],
+                    'example.com',
+                    ('http://www.w3.org/2001/XMLSchema', 'string')
+                ),
+            ]))
+            .result_str(DEFAULT_ZONE_RESULT),
+            OpenUrlCall('POST', 200)
+            .expect_content_predicate(validate_wsdl_call([
+                expect_authentication('foo', 'bar'),
+                validate_add_request('example.com', new_entry),
+            ]))
+            .result_str(create_add_result(new_entry)),
+        ])
+        with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
+            with pytest.raises(AnsibleExitJson) as e:
+                set_module_args({
+                    'hosttech_username': 'foo',
+                    'hosttech_password': 'bar',
+                    'state': 'present',
+                    'zone': 'example.com',
+                    'record': 'example.com',
+                    'type': 'CAA',
+                    'ttl': 3600,
+                    'value': [
+                        'test',
+                    ],
                     '_ansible_remote_tmp': '/tmp/tmp',
                     '_ansible_keep_remote_files': True,
                 })
