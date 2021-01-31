@@ -29,62 +29,11 @@ from ansible_collections.felixfontein.hosttech_dns.plugins.modules import hostte
 # This import is needed so patching below works
 import ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl
 
-
-def validate_wsdl_call(conditions):
-    def predicate(content):
-        assert content.startswith(b"<?xml version='1.0' encoding='utf-8'?>\n")
-
-        root = lxmletree.fromstring(content)
-        header = None
-        body = None
-
-        for header_ in root.iter(lxmletree.QName('http://schemas.xmlsoap.org/soap/envelope/', 'Header').text):
-            header = header_
-        for body_ in root.iter(lxmletree.QName('http://schemas.xmlsoap.org/soap/envelope/', 'Body').text):
-            body = body_
-
-        for condition in conditions:
-            if not condition(content, header, body):
-                return False
-        return True
-
-    return predicate
-
-
-def get_value(root, name):
-    for auth in root.iter(name):
-        return auth
-    raise Exception('Cannot find child "{0}" in node {1}'.format(name, root))
-
-
-def expect_authentication(username, password):
-    def predicate(content, header, body):
-        auth = get_value(header, lxmletree.QName('auth', 'authenticate').text)
-        assert get_value(auth, 'UserName').text == username
-        assert get_value(auth, 'Password').text == password
-        return True
-
-    return predicate
-
-
-def expect_value(path, value, type=None):
-    def predicate(content, header, body):
-        node = body
-        for entry in path:
-            node = get_value(node, entry)
-        if type is not None:
-            type_text = node.get(lxmletree.QName('http://www.w3.org/2001/XMLSchema-instance', 'type'))
-            i = type_text.find(':')
-            if i < 0:
-                ns = None
-            else:
-                ns = node.nsmap.get(type_text[:i])
-                type_text = type_text[i + 1:]
-            assert ns == type[0] and type_text == type[1]
-        assert node.text == value
-        return True
-
-    return predicate
+from .helper import (
+    validate_wsdl_call,
+    expect_authentication,
+    expect_value,
+)
 
 
 GET_ALL_ZONES_ANSWER = ''.join([
