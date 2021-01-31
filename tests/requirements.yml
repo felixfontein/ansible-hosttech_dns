@@ -1,2 +1,3 @@
 integration_tests_dependencies: []
-unit_tests_dependencies: []
+unit_tests_dependencies:
+- community.internal_test_tools

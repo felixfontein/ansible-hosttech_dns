@@ -84,7 +84,7 @@ class DNSRecord(object):
         return 'DNSRecord(' + ', '.join(data) + ')'
 
     def __repr__(self):
-        return self.encode(include_ids=True)
+        return 'DNSRecord.create_from_encoding({0!r})'.format(self.encode(include_ids=True))
 
 
 class DNSZone(object):
@@ -142,7 +142,7 @@ class DNSZone(object):
         return 'DNSZone(\n' + ',\n'.join(['  ' + line for line in data]) + '\n)'
 
     def __repr__(self):
-        return self.encode()
+        return 'DNSZone.create_from_encoding({0!r})'.format(self.encode())
 
 
 class HostTechAPIError(Exception):
