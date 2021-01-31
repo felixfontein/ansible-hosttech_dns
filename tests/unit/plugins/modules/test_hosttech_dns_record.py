@@ -73,7 +73,14 @@ def validate_add_request(zone, entry):
 def create_add_result(entry):
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>\n',
-        '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://ns1.hosttech.eu/public/api" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">',
+        ''.join([
+            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
+            ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
+            ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
+            ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+            ' xmlns:ns2="http://xml.apache.org/xml-soap"'
+            ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
+            ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">']),
         '<SOAP-ENV:Header>',
         '<ns1:authenticateResponse>',
         '<return xsi:type="xsd:boolean">true</return>',
