@@ -326,3 +326,38 @@ class TestHosttechDNSRecord(ModuleTestCase):
 
         print(e.value.args[0])
         assert e.value.args[0]['changed'] is False
+
+    def test_change_check_mode(self):
+        open_url = OpenUrlProxy([
+            OpenUrlCall('POST', 200)
+            .expect_content_predicate(validate_wsdl_call([
+                expect_authentication('foo', 'bar'),
+                expect_value(
+                    [lxmletree.QName('https://ns1.hosttech.eu/public/api', 'getZone').text, 'sZoneName'],
+                    'example.com',
+                    ('http://www.w3.org/2001/XMLSchema', 'string')
+                ),
+            ]))
+            .result_str(GET_ALL_ZONES_ANSWER),
+        ])
+        with patch('ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl.open_url', open_url):
+            with pytest.raises(AnsibleExitJson) as e:
+                set_module_args({
+                    'hosttech_username': 'foo',
+                    'hosttech_password': 'bar',
+                    'state': 'present',
+                    'zone': 'example.com',
+                    'record': 'example.com',
+                    'type': 'CAA',
+                    'ttl': 3600,
+                    'value': [
+                        'test',
+                    ],
+                    '_ansible_check_mode': True,
+                    '_ansible_remote_tmp': '/tmp/tmp',
+                    '_ansible_keep_remote_files': True,
+                })
+                hosttech_dns_record.main()
+
+        print(e.value.args[0])
+        assert e.value.args[0]['changed'] is True
