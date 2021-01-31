@@ -240,7 +240,9 @@ def run_module():
                 if record.prefix != prefix:
                     continue
             key = ((record.prefix + '.' + zone_in) if record.prefix else zone_in, record.type)
-            record_list = records.get(key, [])
+            record_list = records.get(key)
+            if record_list is None:
+                record_list = records[key] = []
             record_list.append(record)
 
         # Format output

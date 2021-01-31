@@ -1,0 +1,2 @@
+bugfixes:
+- "hosttech_dns_record_info - when ``what`` was not ``single_record``, the return value ``sets`` was always empty (https://github.com/felixfontein/ansible-hosttech_dns/pull/2)."
