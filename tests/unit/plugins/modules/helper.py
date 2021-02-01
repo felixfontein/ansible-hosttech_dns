@@ -18,8 +18,8 @@ DEFAULT_ENTRIES = [
     (128, 42, 'AAAA', '*', '2001:1:2::4', 3600, None, None),
     (129, 42, 'MX', '', 'example.com', 3600, None, '10'),
     (130, 42, 'NS', '', 'ns3.hostserv.eu', 10800, None, None),
-    (130, 42, 'NS', '', 'ns2.hostserv.eu', 10800, None, None),
-    (130, 42, 'NS', '', 'ns1.hostserv.eu', 10800, None, None),
+    (131, 42, 'NS', '', 'ns2.hostserv.eu', 10800, None, None),
+    (132, 42, 'NS', '', 'ns1.hostserv.eu', 10800, None, None),
 ]
 
 
@@ -62,6 +62,8 @@ def expect_authentication(username, password):
 
 def check_nil(node):
     nil_flag = node.get(lxml.etree.QName('http://www.w3.org/2001/XMLSchema-instance', 'nil'))
+    if nil_flag != 'true':
+        print(nil_flag)
     assert nil_flag == 'true'
 
 
@@ -75,7 +77,11 @@ def check_value(node, value, type=None):
         else:
             ns = node.nsmap.get(type_text[:i])
             type_text = type_text[i + 1:]
+        if ns != type[0] or type_text != type[1]:
+            print(ns, type[0], type_text, type[1])
         assert ns == type[0] and type_text == type[1]
+    if node.text != value:
+        print(node.text, value)
     assert node.text == value
 
 
