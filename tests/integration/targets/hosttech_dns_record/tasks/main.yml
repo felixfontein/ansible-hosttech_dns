@@ -90,7 +90,7 @@
         - rec.set.record == test_record
         - rec.set.type == 'A'
         - rec.set.ttl == 300
-        - rec.set.value | length == 3
+        - rec.set.value | length == 2
 
   - name: Delete test record
     hosttech_dns_record:
