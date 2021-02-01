@@ -1,0 +1,2 @@
+bugfixes:
+- "hosttech_dns_record - fix ``diff`` mode: unchanged records were not included in ``after`` state (https://github.com/felixfontein/ansible-hosttech_dns/pull/3)."
