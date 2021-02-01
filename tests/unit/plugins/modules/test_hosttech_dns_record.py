@@ -491,6 +491,7 @@ class TestHosttechDNSRecord(ModuleTestCase):
                         'ns4.hostserv.eu',
                     ],
                     'overwrite': True,
+                    '_ansible_diff': True,
                     '_ansible_remote_tmp': '/tmp/tmp',
                     '_ansible_keep_remote_files': True,
                 })
@@ -498,3 +499,18 @@ class TestHosttechDNSRecord(ModuleTestCase):
 
         print(e.value.args[0])
         assert e.value.args[0]['changed'] is True
+        assert 'diff' in e.value.args[0]
+        assert 'before' in e.value.args[0]['diff']
+        assert 'after' in e.value.args[0]['diff']
+        assert e.value.args[0]['diff']['before'] == {
+            'record': 'example.com',
+            'type': 'NS',
+            'ttl': 10800,
+            'value': ['ns1.hostserv.eu', 'ns2.hostserv.eu', 'ns3.hostserv.eu'],
+        }
+        assert e.value.args[0]['diff']['after'] == {
+            'record': 'example.com',
+            'type': 'NS',
+            'ttl': 10800,
+            'value': ['ns4.hostserv.eu'],
+        }
