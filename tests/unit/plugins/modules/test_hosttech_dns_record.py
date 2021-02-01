@@ -26,10 +26,11 @@ from ansible_collections.felixfontein.hosttech_dns.plugins.modules import hostte
 import ansible_collections.felixfontein.hosttech_dns.plugins.module_utils.wsdl
 
 from .helper import (
+    add_answer_end_lines,
+    add_answer_start_lines,
     add_dns_record_lines,
     check_nil,
     check_value,
-    create_zones_answer,
     expect_authentication,
     expect_value,
     find_map_entry,
@@ -42,29 +43,32 @@ from .helper import (
 lxmletree = pytest.importorskip("lxml.etree")
 
 
+def check_record(record_data, entry):
+    check_value(find_map_entry(record_data, 'type'), entry[2], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+    prefix = find_map_entry(record_data, 'prefix')
+    if entry[3]:
+        check_value(prefix, entry[3], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+    elif prefix is not None:
+        check_nil(prefix)
+    check_value(find_map_entry(record_data, 'target'), entry[4], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+    check_value(find_map_entry(record_data, 'ttl'), str(entry[5]), type=('http://www.w3.org/2001/XMLSchema', 'int'))
+    if entry[6] is None:
+        comment = find_map_entry(record_data, 'comment', allow_non_existing=True)
+        if comment is not None:
+            check_nil(comment)
+    else:
+        check_value(find_map_entry(record_data, 'comment'), entry[6], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+    if entry[7] is None:
+        check_nil(find_map_entry(record_data, 'priority'))
+    else:
+        check_value(find_map_entry(record_data, 'priority'), entry[7], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+
+
 def validate_add_request(zone, entry):
     def predicate(content, header, body):
         fn_data = get_value(body, lxmletree.QName('https://ns1.hosttech.eu/public/api', 'addRecord').text)
         check_value(get_value(fn_data, 'search'), zone, type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        record_data = get_value(fn_data, 'recorddata')
-        check_value(find_map_entry(record_data, 'type'), entry[2], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        prefix = find_map_entry(record_data, 'prefix')
-        if entry[3]:
-            check_value(prefix, entry[3], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        elif prefix is not None:
-            check_nil(prefix)
-        check_value(find_map_entry(record_data, 'target'), entry[4], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        check_value(find_map_entry(record_data, 'ttl'), str(entry[5]), type=('http://www.w3.org/2001/XMLSchema', 'int'))
-        if entry[6] is None:
-            comment = find_map_entry(record_data, 'comment', allow_non_existing=True)
-            if comment is not None:
-                check_nil(comment)
-        else:
-            check_value(find_map_entry(record_data, 'comment'), entry[6], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        if entry[7] is None:
-            check_nil(find_map_entry(record_data, 'priority'))
-        else:
-            check_value(find_map_entry(record_data, 'priority'), entry[7], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        check_record(get_value(fn_data, 'recorddata'), entry)
         return True
 
     return predicate
@@ -74,25 +78,7 @@ def validate_update_request(entry):
     def predicate(content, header, body):
         fn_data = get_value(body, lxmletree.QName('https://ns1.hosttech.eu/public/api', 'updateRecord').text)
         check_value(get_value(fn_data, 'recordId'), str(entry[0]), type=('http://www.w3.org/2001/XMLSchema', 'int'))
-        record_data = get_value(fn_data, 'recorddata')
-        check_value(find_map_entry(record_data, 'type'), entry[2], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        prefix = find_map_entry(record_data, 'prefix')
-        if entry[3]:
-            check_value(prefix, entry[3], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        elif prefix is not None:
-            check_nil(prefix)
-        check_value(find_map_entry(record_data, 'target'), entry[4], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        check_value(find_map_entry(record_data, 'ttl'), str(entry[5]), type=('http://www.w3.org/2001/XMLSchema', 'int'))
-        if entry[6] is None:
-            comment = find_map_entry(record_data, 'comment', allow_non_existing=True)
-            if comment is not None:
-                check_nil(comment)
-        else:
-            check_value(find_map_entry(record_data, 'comment'), entry[6], type=('http://www.w3.org/2001/XMLSchema', 'string'))
-        if entry[7] is None:
-            check_nil(find_map_entry(record_data, 'priority'))
-        else:
-            check_value(find_map_entry(record_data, 'priority'), entry[7], type=('http://www.w3.org/2001/XMLSchema', 'string'))
+        check_record(get_value(fn_data, 'recorddata'), entry)
         return True
 
     return predicate
@@ -108,84 +94,34 @@ def validate_del_request(entry):
 
 
 def create_add_result(entry):
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>\n',
-        ''.join([
-            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
-            ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
-            ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
-            ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-            ' xmlns:ns2="http://xml.apache.org/xml-soap"'
-            ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
-            ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">']),
-        '<SOAP-ENV:Header>',
-        '<ns1:authenticateResponse>',
-        '<return xsi:type="xsd:boolean">true</return>',
-        '</ns1:authenticateResponse>',
-        '</SOAP-ENV:Header>',
-        '<SOAP-ENV:Body>',
-        '<ns1:addRecordResponse>',
-    ]
+    lines = []
+    add_answer_start_lines(lines)
+    lines.append('<ns1:addRecordResponse>')
     add_dns_record_lines(lines, entry, 'return')
-    lines.extend([
-        '</ns1:addRecordResponse>',
-        '</SOAP-ENV:Body>',
-        '</SOAP-ENV:Envelope>',
-    ])
+    lines.append('</ns1:addRecordResponse>')
+    add_answer_end_lines(lines)
     return ''.join(lines)
 
 
 def create_update_result(entry):
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>\n',
-        ''.join([
-            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
-            ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
-            ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
-            ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-            ' xmlns:ns2="http://xml.apache.org/xml-soap"'
-            ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
-            ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">']),
-        '<SOAP-ENV:Header>',
-        '<ns1:authenticateResponse>',
-        '<return xsi:type="xsd:boolean">true</return>',
-        '</ns1:authenticateResponse>',
-        '</SOAP-ENV:Header>',
-        '<SOAP-ENV:Body>',
-        '<ns1:updateRecordResponse>',
-    ]
+    lines = []
+    add_answer_start_lines(lines)
+    lines.append('<ns1:updateRecordResponse>')
     add_dns_record_lines(lines, entry, 'return')
-    lines.extend([
-        '</ns1:updateRecordResponse>',
-        '</SOAP-ENV:Body>',
-        '</SOAP-ENV:Envelope>',
-    ])
+    lines.append('</ns1:updateRecordResponse>')
+    add_answer_end_lines(lines)
     return ''.join(lines)
 
 
 def create_del_result(success):
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>\n',
-        ''.join([
-            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
-            ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
-            ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
-            ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-            ' xmlns:ns2="http://xml.apache.org/xml-soap"'
-            ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
-            ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">']),
-        '<SOAP-ENV:Header>',
-        '<ns1:authenticateResponse>',
-        '<return xsi:type="xsd:boolean">true</return>',
-        '</ns1:authenticateResponse>',
-        '</SOAP-ENV:Header>',
-        '<SOAP-ENV:Body>',
+    lines = []
+    add_answer_start_lines(lines)
+    lines.extend([
         '<ns1:deleteRecordResponse>',
         '<return xsi:type="xsd:boolean">{success}</return>'.format(success='true' if success else 'false'),
         '</ns1:deleteRecordResponse>',
-        '</SOAP-ENV:Body>',
-        '</SOAP-ENV:Envelope>',
-    ]
+    ])
+    add_answer_end_lines(lines)
     return ''.join(lines)
 
 

@@ -108,6 +108,32 @@ def expect_value(path, value, type=None):
     return predicate
 
 
+def add_answer_start_lines(lines):
+    lines.extend([
+        '<?xml version="1.0" encoding="UTF-8"?>\n',
+        '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
+        ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
+        ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
+        ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+        ' xmlns:ns2="http://xml.apache.org/xml-soap"'
+        ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
+        ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">',
+        '<SOAP-ENV:Header>',
+        '<ns1:authenticateResponse>',
+        '<return xsi:type="xsd:boolean">true</return>',
+        '</ns1:authenticateResponse>',
+        '</SOAP-ENV:Header>',
+        '<SOAP-ENV:Body>',
+    ])
+
+
+def add_answer_end_lines(lines):
+    lines.extend([
+        '</SOAP-ENV:Body>',
+        '</SOAP-ENV:Envelope>'
+    ])
+
+
 def add_dns_record_lines(lines, entry, tag_name):
     lines.extend([
         '<{tag_name} xsi:type="ns2:Map">'.format(tag_name=tag_name),
@@ -129,27 +155,15 @@ def add_dns_record_lines(lines, entry, tag_name):
     lines.append('</{tag_name}>'.format(tag_name=tag_name))
 
 
-def create_zones_answer(entries):
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>\n',
-        '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
-        ' xmlns:ns1="https://ns1.hosttech.eu/public/api"'
-        ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"'
-        ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-        ' xmlns:ns2="http://xml.apache.org/xml-soap"'
-        ' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"'
-        ' SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">',
-        '<SOAP-ENV:Header>',
-        '<ns1:authenticateResponse>',
-        '<return xsi:type="xsd:boolean">true</return>',
-        '</ns1:authenticateResponse>',
-        '</SOAP-ENV:Header>',
-        '<SOAP-ENV:Body>',
+def create_zones_answer(zone_id, zone_name, entries):
+    lines = []
+    add_answer_start_lines(lines)
+    lines.extend([
         '<ns1:getZoneResponse>',
         '<return xsi:type="ns2:Map">',
-        '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">42</value></item>',
+        '<item><key xsi:type="xsd:string">id</key><value xsi:type="xsd:int">{zone_id}</value></item>'.format(zone_id=zone_id),
         '<item><key xsi:type="xsd:string">user</key><value xsi:type="xsd:int">23</value></item>',
-        '<item><key xsi:type="xsd:string">name</key><value xsi:type="xsd:string">example.com</value></item>',
+        '<item><key xsi:type="xsd:string">name</key><value xsi:type="xsd:string">{zone_name}</value></item>'.format(zone_name=zone_name),
         '<item><key xsi:type="xsd:string">email</key><value xsi:type="xsd:string">dns@hosttech.eu</value></item>',
         '<item><key xsi:type="xsd:string">ttl</key><value xsi:type="xsd:int">10800</value></item>',
         '<item><key xsi:type="xsd:string">nameserver</key><value xsi:type="xsd:string">ns1.hostserv.eu</value></item>',
@@ -160,7 +174,7 @@ def create_zones_answer(entries):
         '<item><key xsi:type="xsd:string">expire</key><value xsi:type="xsd:int">1234567</value></item>',
         '<item><key xsi:type="xsd:string">template</key><value xsi:nil="true"/></item>',
         '<item><key xsi:type="xsd:string">ns3</key><value xsi:type="xsd:int">1</value></item>',
-    ]
+    ])
     lines.append(
         '<item><key xsi:type="xsd:string">records</key><value SOAP-ENC:arrayType="ns2:Map[{count}]" xsi:type="SOAP-ENC:Array">'.format(
             count=len(entries)))
@@ -171,10 +185,9 @@ def create_zones_answer(entries):
         '</item>',
         '</return>',
         '</ns1:getZoneResponse>',
-        '</SOAP-ENV:Body>',
-        '</SOAP-ENV:Envelope>'
     ])
+    add_answer_end_lines(lines)
     return ''.join(lines)
 
 
-DEFAULT_ZONE_RESULT = create_zones_answer(DEFAULT_ENTRIES)
+DEFAULT_ZONE_RESULT = create_zones_answer(42, 'example.com', DEFAULT_ENTRIES)
