@@ -512,5 +512,5 @@ class TestHosttechDNSRecord(ModuleTestCase):
             'record': 'example.com',
             'type': 'NS',
             'ttl': 10800,
-            'value': ['ns4.hostserv.eu'],
+            'value': ['ns1.hostserv.eu', 'ns4.hostserv.eu'],
         }

@@ -307,6 +307,7 @@ def run_module():
     ttl_in = module.params.get('ttl')
     mismatch = False
     mismatch_records = []
+    keep_records = []
     for record in records:
         if record.ttl != ttl_in:
             mismatch = True
@@ -315,6 +316,7 @@ def run_module():
         val = (record.priority, record.target)
         if val in values:
             values.remove(val)
+            keep_records.append(record)
         else:
             mismatch = True
             mismatch_records.append(record)
@@ -323,7 +325,7 @@ def run_module():
         mismatch = True
 
     before = [record.clone() for record in records]
-    after = []
+    after = [record for record in keep_records]
 
     # Determine what to do
     to_create = []
