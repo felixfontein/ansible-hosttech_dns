@@ -5,6 +5,15 @@ Hosttech DNS Modules Release Notes
 .. contents:: Topics
 
 
+v1.1.1
+======
+
+Bugfixes
+--------
+
+- hosttech_dns_record - fix ``diff`` mode: unchanged records were not included in ``after`` state (https://github.com/felixfontein/ansible-hosttech_dns/pull/3).
+- hosttech_dns_record_info - when ``what`` was not ``single_record``, the return value ``sets`` was always empty (https://github.com/felixfontein/ansible-hosttech_dns/pull/2).
+
 v1.1.0
 ======
 

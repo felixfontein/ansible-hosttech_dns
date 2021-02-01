@@ -39,3 +39,14 @@ releases:
     - diff-mode.yml
     - fix-new-records.yml
     release_date: '2020-07-04'
+  1.1.1:
+    changes:
+      bugfixes:
+      - 'hosttech_dns_record - fix ``diff`` mode: unchanged records were not included
+        in ``after`` state (https://github.com/felixfontein/ansible-hosttech_dns/pull/3).'
+      - hosttech_dns_record_info - when ``what`` was not ``single_record``, the return
+        value ``sets`` was always empty (https://github.com/felixfontein/ansible-hosttech_dns/pull/2).
+    fragments:
+    - 2-hosttech_dns_record_info-fix-multiple.yml
+    - 3-hosttech_dns_record-fix-diff.yml
+    release_date: '2021-02-01'
