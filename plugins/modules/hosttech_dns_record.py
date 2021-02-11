@@ -325,7 +325,7 @@ def run_module():
         mismatch = True
 
     before = [record.clone() for record in records]
-    after = [record for record in keep_records]
+    after = keep_records[:]
 
     # Determine what to do
     to_create = []
