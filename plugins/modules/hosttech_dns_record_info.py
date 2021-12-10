@@ -19,7 +19,7 @@ version_added: 1.0.0
 deprecated:
     why: This collection is no longer updated.
     alternative: Use community.dns.hetzner_dns_record_set_info instead.
-    removed_from_collection: felixfontein.hosttech_dns
+    removed_in: 2.0.0
 
 description:
     - "Retrieves DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."

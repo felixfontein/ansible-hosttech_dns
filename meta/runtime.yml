@@ -5,6 +5,8 @@ plugin_routing:
     hosttech_dns_record:
       deprecation:
         warning_text: The felixfontein.hosttech_dns.hosttech_dns_record is deprecated. Use community.dns.hetzner_dns_record_set instead.
+        removal_version: 2.0.0
     hosttech_dns_record_info:
       deprecation:
         warning_text: The felixfontein.hosttech_dns.hosttech_dns_record_info is deprecated. Use community.dns.hetzner_dns_record_set_info instead.
+        removal_version: 2.0.0
