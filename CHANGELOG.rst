@@ -5,6 +5,19 @@ Hosttech DNS Modules Release Notes
 .. contents:: Topics
 
 
+v1.2.0
+======
+
+Release Summary
+---------------
+
+Deprecation release.
+
+Deprecated Features
+-------------------
+
+- This collection is deprecated. Please use `community.dns <https://galaxy.ansible.com/community/dns>`_, which is also included in Ansible 4+. It contains improved versions of the modules of this collection and receives updates.
+
 v1.1.1
 ======
 

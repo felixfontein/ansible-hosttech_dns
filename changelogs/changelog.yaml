@@ -50,3 +50,13 @@ releases:
     - 2-hosttech_dns_record_info-fix-multiple.yml
     - 3-hosttech_dns_record-fix-diff.yml
     release_date: '2021-02-01'
+  1.2.0:
+    changes:
+      deprecated_features:
+      - This collection is deprecated. Please use `community.dns <https://galaxy.ansible.com/community/dns>`_,
+        which is also included in Ansible 4+. It contains improved versions of the
+        modules of this collection and receives updates.
+      release_summary: Deprecation release.
+    fragments:
+    - 1.2.0.yml
+    release_date: '2021-12-10'
