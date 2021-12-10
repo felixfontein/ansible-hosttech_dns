@@ -1,0 +1,6 @@
+plugins/modules/hosttech_dns_record.py validate-modules:deprecation-mismatch
+plugins/modules/hosttech_dns_record.py validate-modules:invalid-documentation
+plugins/modules/hosttech_dns_record.py validate-modules:missing-main-call
+plugins/modules/hosttech_dns_record_info.py validate-modules:deprecation-mismatch
+plugins/modules/hosttech_dns_record_info.py validate-modules:invalid-documentation
+plugins/modules/hosttech_dns_record_info.py validate-modules:missing-main-call

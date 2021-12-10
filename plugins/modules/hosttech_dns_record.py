@@ -16,6 +16,11 @@ short_description: Add or delete entries in Hosttech DNS service
 
 version_added: 1.0.0
 
+deprecated:
+    why: This collection is no longer updated.
+    alternative: Use community.dns.hetzner_dns_record_set instead.
+    removed_in: 2.0.0
+
 description:
     - "Creates and deletes DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."
 
