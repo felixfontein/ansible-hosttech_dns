@@ -16,6 +16,10 @@ short_description: Retrieve entries in Hosttech DNS service
 
 version_added: 1.0.0
 
+deprecated:
+    alternative: Use community.dns.hetzner_dns_record_set_info instead.
+    removed_from_collection: felixfontein.hosttech_dns
+
 description:
     - "Retrieves DNS records in Hosttech DNS service U(https://ns1.hosttech.eu/public/api?wsdl)."
 
