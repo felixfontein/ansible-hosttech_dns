@@ -60,3 +60,5 @@ releases:
     fragments:
     - 1.2.0.yml
     release_date: '2021-12-10'
+  1.2.1:
+    release_date: '2021-12-10'
