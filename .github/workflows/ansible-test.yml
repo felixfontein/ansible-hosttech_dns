@@ -39,7 +39,7 @@ jobs:
           path: ansible_collections/felixfontein/hosttech_dns
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           # it is just required to run that once as "ansible-test sanity" in the docker image
           # will run on all python versions it supports.
@@ -86,7 +86,7 @@ jobs:
           path: ansible_collections/felixfontein/hosttech_dns
 
       - name: Set up Python ${{ matrix.ansible }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           # it is just required to run that once as "ansible-test units" in the docker image
           # will run on all python versions it supports.
